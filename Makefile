@@ -1,5 +1,6 @@
 .PHONY: all deps fmt vet sec test build clean ci
 all: fmt vet sec test build
+ci: deps fmt vet sec test build
 
 deps:
 	@command -v gosec >/dev/null 2>&1 || { \
