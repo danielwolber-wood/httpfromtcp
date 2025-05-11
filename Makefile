@@ -1,4 +1,7 @@
-.PHONY: all deps fmt vet sec test build clean ci
+.PHONY: all deps fmt vet sec test build clean ci tcp udp
+
+COMPONENTS := tcplistener udpsender
+
 all: fmt vet sec test build
 ci: deps fmt vet sec test build
 
@@ -20,12 +23,21 @@ sec:
 test:
 	go test ./...
 
-build:
-	mkdir -p bin/app
-	go build -o bin/app ./...
+build: $(COMPONENTS)
+
+$(COMPONENTS):
+	mkdir -p bin/$@
+	go build -o bin/$@ ./cmd/$@
+
+tcplistener: tcp
+tcp:
+	mkdir -p bin/tcplistener
+	go build -o bin/tcplistener ./cmd/tcplistener
+
+udpsender: udp
+udp:
+	mkdir -p bin/udpsender
+	go build -o bin/udpsender ./cmd/udpsender
 
 clean:
 	rm -rf bin
-
-ci:
-	all
