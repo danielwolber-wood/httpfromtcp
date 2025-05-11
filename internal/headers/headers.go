@@ -11,7 +11,34 @@ func NewHeaders() Headers {
 	return Headers{}
 }
 
+func validateKey(key string) (bool, error) {
+	allow := make(map[rune]struct{})
+	chars := []rune{
+		'!', '#', '$', '%', '&', '\'', '*',
+		'+', '-', '.', '^', '_', '`', '|', '~', ':',
+	}
+	for i := '0'; i <= '9'; i++ {
+		chars = append(chars, i)
+	}
+	for i := 'a'; i <= 'z'; i++ {
+		chars = append(chars, i)
+	}
+
+	for _, char := range chars {
+		allow[char] = struct{}{}
+	}
+
+	for _, r := range key {
+		if _, ok := allow[r]; !ok {
+			return false, nil
+		}
+	}
+	return true, nil
+
+}
+
 func parseFieldLine(line string) (n int, key, value string, done bool, err error) {
+
 	if !strings.Contains(line, "\r\n") {
 		return 0, "", "", false, nil
 	}
@@ -41,10 +68,14 @@ func parseFieldLine(line string) (n int, key, value string, done bool, err error
 			break
 		}
 	}
-	key = headerLine[:splitIndex]
+	key = strings.ToLower(headerLine[:splitIndex])
 	value = headerLine[splitIndex+1:] // +1 because I don't want it to contain the colon
 	key = strings.TrimSpace(string(key))
 	value = strings.TrimSpace(string(value))
+	keyValid, _ := validateKey(key)
+	if !keyValid {
+		return 0, "", "", false, fmt.Errorf("invalid header line: invalid char in key")
+	}
 	return bytesConsumed, key, value, false, nil
 
 }
