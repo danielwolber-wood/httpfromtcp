@@ -17,7 +17,7 @@ func parseFieldLine(line string) (n int, key, value string, done bool, err error
 	}
 
 	if strings.HasPrefix(line, "\r\n") {
-		return 0, "", "", true, nil
+		return 2, "", "", true, nil
 	}
 
 	index := strings.Index(line, "\r\n")
@@ -61,7 +61,7 @@ func (h Headers) Parse(data []byte) (n int, done bool, err error) {
 	/// if string(data) == "\r\n\r\n"
 	/// or strings.HasPrefix(string(data), "\r\n\r\n")
 	if strings.HasPrefix(string(data), "\r\n") {
-		return 0, true, nil
+		return 2, true, nil
 	}
 	index := strings.Index(string(data), "\r\n")
 	bytesConsumed, key, value, done, err := parseFieldLine(string(data)[:index+2])
