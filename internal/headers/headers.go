@@ -38,7 +38,7 @@ func validateKey(key string) (bool, error) {
 }
 
 func parseFieldLine(line string) (n int, key, value string, done bool, err error) {
-
+	fmt.Printf("line: %v\n", line)
 	if !strings.Contains(line, "\r\n") {
 		return 0, "", "", false, nil
 	}
@@ -102,6 +102,17 @@ func (h Headers) Parse(data []byte) (n int, done bool, err error) {
 	if bytesConsumed == 0 {
 		return 0, false, nil
 	}
-	h[key] = value
+	fmt.Printf("Key: %v\n ", key)
+	fmt.Printf("Value: %v\n ", value)
+	existingValue, ok := h[key]
+	if ok {
+		fmt.Printf("existingValue: %v\n", existingValue)
+		result := fmt.Sprintf("%v, %v", existingValue, value)
+		fmt.Printf("result: %v\n", result)
+		h[key] = result
+
+	} else {
+		h[key] = value
+	}
 	return bytesConsumed, false, nil
 }

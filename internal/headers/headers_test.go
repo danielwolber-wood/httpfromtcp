@@ -82,6 +82,39 @@ func TestHeaders_Parse(t *testing.T) {
 	assert.Equal(t, 25, n)
 	assert.False(t, done)
 
+	// Test: second and third allocation on existing key
+
+	headers = map[string]string{"name": "john"}
+	data = []byte("Name: Dave\r\nName: Martin\r\n\r\n")
+	n, done, err = headers.Parse(data)
+	require.NoError(t, err)
+	require.NotNil(t, headers)
+	assert.Equal(t, "john, Dave", headers["name"])
+	assert.Equal(t, 12, n)
+	assert.False(t, done)
+
+	n, done, err = headers.Parse(data[12:])
+	require.NoError(t, err)
+	require.NotNil(t, headers)
+	assert.Equal(t, "john, Dave, Martin", headers["name"])
+	assert.Equal(t, 14, n)
+	assert.False(t, done)
+	n, done, err = headers.Parse(data[24:])
+	require.NoError(t, err)
+	require.NotNil(t, headers)
+	assert.Equal(t, "john, Dave, Martin", headers["name"])
+	assert.Equal(t, 2, n)
+	assert.True(t, done)
+
+	headers = map[string]string{"host": "localhost:8000"}
+	data = []byte("Host: localhost:42069\r\n\r\n")
+	n, done, err = headers.Parse(data)
+	require.NoError(t, err)
+	require.NotNil(t, headers)
+	assert.Equal(t, "localhost:8000, localhost:42069", headers["host"])
+	assert.Equal(t, 23, n)
+	assert.False(t, done)
+
 	// Test: Valid done
 	headers = NewHeaders()
 	data = []byte("\r\n a bunch of other stuff")
